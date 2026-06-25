@@ -1,0 +1,209 @@
+{
+  "users": [
+    {
+      "id": "default-user-id",
+      "email": "alex.hackathon@example.com",
+      "full_name": "Alex Rivera",
+      "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+      "created_at": "2026-06-24T12:37:16.241Z"
+    },
+    {
+      "email": "pooja@gmail.com",
+      "password": "pooja",
+      "full_name": "pooja",
+      "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+      "id": "user-gdgnts443",
+      "created_at": "2026-06-25T13:24:46.687Z"
+    },
+    {
+      "email": "poojanairrv2006@gmail.com",
+      "password": "pooja",
+      "full_name": "poojanair",
+      "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+      "id": "user-p6vw60fo7",
+      "created_at": "2026-06-25T15:24:03.851Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-1",
+      "user_id": "default-user-id",
+      "title": "Finish DSA revision by Friday",
+      "description": "Revise Trees, Graphs, and Dynamic Programming algorithms.",
+      "category": "Education",
+      "priority": "high",
+      "status": "pending",
+      "due_date": "2026-06-26",
+      "created_at": "2026-06-24T12:37:16.241Z"
+    },
+    {
+      "id": "task-2",
+      "user_id": "default-user-id",
+      "title": "Deploy AWS CloudNetSentinel backend",
+      "description": "Set up ECS, IAM policies, and VPC routing rules.",
+      "category": "Work",
+      "priority": "high",
+      "status": "in_progress",
+      "due_date": "2026-06-25",
+      "created_at": "2026-06-24T12:37:16.241Z"
+    },
+    {
+      "id": "task-3",
+      "user_id": "default-user-id",
+      "title": "Write project guidelines documentation",
+      "description": "Document standard developer workflow, lint rules, and PR requirements.",
+      "category": "Work",
+      "priority": "low",
+      "status": "completed",
+      "due_date": "2026-06-23",
+      "completed_at": "2026-06-24T12:37:16.241Z",
+      "created_at": "2026-06-24T12:37:16.241Z"
+    },
+    {
+      "id": "task-4",
+      "user_id": "default-user-id",
+      "title": "Submit productivity report",
+      "description": "Prepare and submit the weekly stats summary to team lead.",
+      "category": "Work",
+      "priority": "medium",
+      "status": "pending",
+      "due_date": "2026-06-27",
+      "created_at": "2026-06-24T12:37:16.241Z"
+    },
+    {
+      "user_id": "default-user-id",
+      "title": "Water the plant at 5pm",
+      "description": "",
+      "category": "General",
+      "priority": "medium",
+      "status": "pending",
+      "due_date": "2026-06-25",
+      "id": "task-aoyoylim6",
+      "created_at": "2026-06-24T12:39:10.525Z"
+    },
+    {
+      "user_id": "default-user-id",
+      "title": "Call raga at 6pm",
+      "description": "",
+      "category": "General",
+      "priority": "medium",
+      "status": "pending",
+      "due_date": "2026-06-25",
+      "id": "task-c05lb6nim",
+      "created_at": "2026-06-24T12:52:17.574Z"
+    },
+    {
+      "user_id": "default-user-id",
+      "title": "Call raga after 5 mins",
+      "description": "",
+      "category": "General",
+      "priority": "medium",
+      "status": "pending",
+      "due_date": "2026-06-25",
+      "id": "task-59w56jmku",
+      "created_at": "2026-06-24T12:52:41.633Z"
+    },
+    {
+      "user_id": "default-user-id",
+      "title": "Dploy the backedn today",
+      "description": "",
+      "category": "General",
+      "priority": "medium",
+      "status": "pending",
+      "due_date": "2026-06-25",
+      "id": "task-7qfptjssr",
+      "created_at": "2026-06-24T12:53:03.746Z"
+    },
+    {
+      "user_id": "default-user-id",
+      "title": "Deploy AWS CloudNetSentinel backend\nSet up ECS, IAM policies, and VPC routing rules.",
+      "description": "",
+      "category": "Work",
+      "priority": "medium",
+      "status": "pending",
+      "due_date": "2026-06-25",
+      "id": "task-m803ir7zo",
+      "created_at": "2026-06-24T12:53:42.632Z"
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-1",
+      "user_id": "default-user-id",
+      "title": "AWS IAM Best Practices",
+      "category": "Cloud Computing",
+      "content": "1. Lock root user access keys.\n2. Create individual IAM users and use groups.\n3. Grant least privilege policies.\n4. Configure MFA for root and high-privileged roles.",
+      "ai_summary": "Critical security protocols for AWS Identity and Access Management (IAM), emphasizing MFA configuration, least-privilege policies, and root credential security.",
+      "action_items": [
+        "Enable MFA for AWS root account",
+        "Review and prune unused IAM roles"
+      ],
+      "created_at": "2026-06-21T12:37:16.241Z"
+    },
+    {
+      "id": "note-2",
+      "user_id": "default-user-id",
+      "title": "DSA Revision Notes",
+      "category": "Education",
+      "content": "Core DSA revision topics. Trees (DFS, BFS, Binary Search Tree traversals). Graphs (Dijkstra, Bellman-Ford, Kruskal). Dynamic Programming (Knapsack, Longest Common Subsequence). Practice tree traversals and graph algorithms.",
+      "ai_summary": "Study guide for key DSA topics including tree traversals, graph shortest-paths, and common DP paradigms.",
+      "action_items": [
+        "Practice tree traversals",
+        "Implement Dijkstra from scratch"
+      ],
+      "created_at": "2026-06-22T12:37:16.241Z"
+    }
+  ],
+  "reminders": [
+    {
+      "id": "reminder-2",
+      "user_id": "default-user-id",
+      "title": "Pay electricity bill",
+      "remind_at": "2026-06-28T12:37:16.241Z",
+      "status": "active",
+      "created_at": "2026-06-24T12:37:16.241Z"
+    },
+    {
+      "id": "reminder-3",
+      "user_id": "default-user-id",
+      "title": "Attend team sync meeting",
+      "remind_at": "2026-06-24T10:37:16.241Z",
+      "status": "dismissed",
+      "created_at": "2026-06-24T12:37:16.241Z"
+    },
+    {
+      "user_id": "user-p6vw60fo7",
+      "title": "Call pooja",
+      "remind_at": "2026-06-25T12:30:00.000Z",
+      "status": "dismissed",
+      "id": "reminder-bm1q3fp8c",
+      "created_at": "2026-06-25T16:57:49.079Z"
+    }
+  ],
+  "summaries": [
+    {
+      "id": "summary-1",
+      "user_id": "default-user-id",
+      "week_start_date": "2026-06-17",
+      "summary_text": "You focused primarily on Cloud Computing, DSA, and Interview Preparation this week. You completed 12 of 20 tasks and improved productivity by 18%. Keep up the work on AWS deployments and DSA challenges.",
+      "productivity_score": 82,
+      "created_at": "2026-06-23T12:37:16.241Z"
+    },
+    {
+      "user_id": "user-p6vw60fo7",
+      "week_start_date": "2026-06-18",
+      "summary_text": "You completed 0 of 0 tasks this week. You have maintained balanced task categorization this week. Good effort! You made steady progress on your tasks. Next week, try breaking down remaining tasks into smaller sub-tasks to improve your velocity.",
+      "productivity_score": 75,
+      "id": "summary-aj3v05c8v",
+      "created_at": "2026-06-25T15:57:58.081Z"
+    },
+    {
+      "user_id": "user-p6vw60fo7",
+      "week_start_date": "2026-06-18",
+      "summary_text": "You completed 0 of 0 tasks this week. You have maintained balanced task categorization this week. Good effort! You made steady progress on your tasks. Next week, try breaking down remaining tasks into smaller sub-tasks to improve your velocity.",
+      "productivity_score": 75,
+      "id": "summary-44yt2vgzx",
+      "created_at": "2026-06-25T15:57:58.285Z"
+    }
+  ]
+}
