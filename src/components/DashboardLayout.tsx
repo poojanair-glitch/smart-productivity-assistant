@@ -25,6 +25,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setIsMobileSidebarOpen(false);
+  }, [pathname]);
   
   // Notification states
   const [notificationCount, setNotificationCount] = useState(0);
@@ -387,17 +392,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
         <button 
           onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)} 
-          className="p-1 rounded-lg bg-slate-800 text-slate-200"
+          className="p-1 rounded-lg bg-slate-800 text-slate-200 focus:outline-none"
         >
           {isMobileSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
+      {/* MOBILE SIDEBAR BACKDROP */}
+      {isMobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-30 md:hidden transition-opacity duration-300"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* LEFT SIDEBAR (Dark Gradient Sidebar) */}
       <aside className={`
-        fixed inset-y-0 left-0 z-40 w-64 bg-gradient-to-b from-[#0F172A] to-[#090D1A] text-slate-300 p-6 flex flex-col justify-between border-r border-[#1E293B] transition-transform duration-300 ease-in-out
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 md:w-20 md:p-3'}
-        ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        fixed inset-y-0 left-0 z-40 bg-gradient-to-b from-[#0F172A] to-[#090D1A] text-slate-300 flex flex-col justify-between border-r border-[#1E293B] transition-all duration-300 ease-in-out
+        w-64 ${isSidebarOpen ? 'md:w-64' : 'md:w-20'}
+        p-6 ${isSidebarOpen ? 'md:p-6' : 'md:p-3'}
+        ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
         md:relative
       `}>
         {/* Top Branding Section */}
@@ -407,7 +421,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="p-2 rounded-xl bg-gradient-to-br from-[#6D5DFC] to-[#8B5CF6] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#6D5DFC]/20">
                 <Cpu className="w-5 h-5" />
               </div>
-              {isSidebarOpen && (
+              {(isSidebarOpen || isMobileSidebarOpen) && (
                 <span className="font-bold text-lg tracking-tight text-white bg-gradient-to-r from-white to-[#A78BFA] bg-clip-text text-transparent">
                   Smart Productivity
                 </span>
@@ -431,6 +445,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link
                   key={item.name}
                   href={item.path}
+                  onClick={() => setIsMobileSidebarOpen(false)}
                   className={`
                     flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
                     ${isActive 
@@ -440,7 +455,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   `}
                 >
                   <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#6D5DFC]' : 'text-slate-400 group-hover:text-slate-200'}`} />
-                  {isSidebarOpen && <span className="text-sm">{item.name}</span>}
+                  {(isSidebarOpen || isMobileSidebarOpen) && <span className="text-sm">{item.name}</span>}
                 </Link>
               );
             })}
@@ -450,7 +465,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Bottom Panel Section */}
         <div className="space-y-4">
           {/* AI Assistant Promo Widget */}
-          {isSidebarOpen && (
+          {(isSidebarOpen || isMobileSidebarOpen) && (
             <div className="p-4 rounded-2xl bg-gradient-to-br from-[#6D5DFC]/10 to-[#8B5CF6]/5 border border-[#6D5DFC]/20 shadow-inner">
               <div className="flex items-center gap-2 text-white mb-2">
                 <Sparkles className="w-4 h-4 text-[#A78BFA]" />
@@ -460,7 +475,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 Need high priority updates or weekly analysis? Chat directly with Gemini.
               </p>
               <button 
-                onClick={() => setIsChatOpen(true)}
+                onClick={() => {
+                  setIsChatOpen(true);
+                  setIsMobileSidebarOpen(false);
+                }}
                 className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-[#6D5DFC] to-[#8B5CF6] hover:from-[#5C4EEB] hover:to-[#7C4BEA] text-white text-xs font-medium shadow-md shadow-[#6D5DFC]/20 transition-all flex items-center justify-center gap-1.5"
               >
                 <MessageSquare className="w-3.5 h-3.5" />
@@ -470,14 +488,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
 
           {/* User Profile Footer */}
-          <div className={`flex ${isSidebarOpen ? 'items-center justify-between' : 'flex-col items-center gap-2'} pt-4 border-t border-[#1E293B] overflow-hidden`}>
-            <div className={`flex items-center ${isSidebarOpen ? 'gap-3' : 'gap-0'} min-w-0`}>
+          <div className={`flex ${(isSidebarOpen || isMobileSidebarOpen) ? 'items-center justify-between' : 'flex-col items-center gap-2'} pt-4 border-t border-[#1E293B] overflow-hidden`}>
+            <div className={`flex items-center ${(isSidebarOpen || isMobileSidebarOpen) ? 'gap-3' : 'gap-0'} min-w-0`}>
               <img 
                 src={userProfile.avatar_url} 
                 alt={userProfile.full_name} 
                 className="w-10 h-10 rounded-full border border-slate-700 object-cover shrink-0" 
               />
-              {isSidebarOpen && (
+              {(isSidebarOpen || isMobileSidebarOpen) && (
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-semibold text-white truncate">{userProfile.full_name}</h4>
                   <p className="text-[11px] text-slate-500 truncate">{userProfile.email}</p>
@@ -498,7 +516,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 relative">
         {/* TOP HEADER */}
-        <header className="sticky top-0 z-20 glass-panel border-b border-slate-200 dark:border-slate-800/80 px-6 py-4 flex items-center justify-between gap-4">
+        <header className="sticky top-0 z-20 glass-panel border-b border-slate-200 dark:border-slate-800/80 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-4">
           {/* Greeting */}
           <div className="hidden sm:block">
             <h2 className="text-lg font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-100">
@@ -680,7 +698,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* CHILD ROUTE CONTENTS */}
-        <main className="flex-1 p-6 z-10">
+        <main className="flex-1 p-4 sm:p-6 z-10">
           {speechStatus && (
             <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-[#6D5DFC]/10 to-[#8B5CF6]/5 border border-[#6D5DFC]/25 flex items-center gap-3 animate-pulse">
               <Sparkles className="w-5 h-5 text-[#6D5DFC]" />
@@ -695,7 +713,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end">
         {/* Chat Window */}
         {isChatOpen && (
-          <div className="w-96 h-[500px] mb-4 rounded-3xl glass-panel shadow-2xl border border-[#6D5DFC]/20 flex flex-col justify-between overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
+          <div className="w-[calc(100vw-2.5rem)] sm:w-96 h-[500px] mb-4 rounded-3xl glass-panel shadow-2xl border border-[#6D5DFC]/20 flex flex-col justify-between overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
             {/* Header */}
             <div className="p-4 bg-gradient-to-r from-[#0F172A] to-[#1E293B] text-white flex items-center justify-between">
               <div className="flex items-center gap-2.5">
