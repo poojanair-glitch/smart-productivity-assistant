@@ -79,50 +79,6 @@ smart-productivity-assistant/
 
 ---
 
-# ⚙️ Installation
-
-Clone the repository
-
-```bash
-git clone https://github.com/poojanair-glitch/smart-productivity-assistant.git
-```
-
-Navigate into the project
-
-```bash
-cd smart-productivity-assistant
-```
-
-Install dependencies
-
-```bash
-npm install
-```
-
-Create a `.env.local` file
-
-```env
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-
-NEXT_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_URL
-
-NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
-```
-
-Start the development server
-
-```bash
-npm run dev
-```
-
-Open
-
-```
-http://localhost:3000
-```
-
----
-
 # 🤖 AI Capabilities
 
 The application integrates Google Gemini AI to provide:
