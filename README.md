@@ -198,6 +198,3 @@ https://github.com/poojanair-glitch
 
 ---
 
-# 📄 License
-
-This project was developed for learning and hackathon purposes.
