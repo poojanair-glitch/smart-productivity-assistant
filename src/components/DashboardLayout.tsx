@@ -614,7 +614,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Greeting */}
           <div className="hidden sm:block text-left">
             <h2 className="text-xl font-bold flex items-center gap-1.5 text-[#111827] dark:text-slate-100">
-              Hello 😊, {userProfile.full_name.split(' ')[0]}! 👋
+              Welcome to your focus zone,{userProfile.full_name.split(' ')[0]}!
             </h2>
             <p className="text-xs text-[#6B7280] dark:text-slate-400 mt-1">What would you like to accomplish today?</p>
           </div>
