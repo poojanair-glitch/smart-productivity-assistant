@@ -213,9 +213,7 @@ Always format your response with clean Markdown. Keep it direct, structured, and
       systemInstruction
     });
     
-    const chat = model.startChat({
-      history: parsedHistory
-    });
+    const chat = model.startChat();
     
     const result = await chat.sendMessage(userMsg);
     return result.response.text();

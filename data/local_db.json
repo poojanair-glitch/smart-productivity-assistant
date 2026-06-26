@@ -124,6 +124,39 @@
       "due_date": "2026-06-25",
       "id": "task-m803ir7zo",
       "created_at": "2026-06-24T12:53:42.632Z"
+    },
+    {
+      "user_id": "user-p6vw60fo7",
+      "title": "To-do:buy books",
+      "description": "Captured offline using Natural Language Processing. Raw input: \"to-do:buy books\"",
+      "category": "Todo",
+      "priority": "medium",
+      "status": "pending",
+      "due_date": "2026-06-26",
+      "id": "task-h893zik2s",
+      "created_at": "2026-06-26T02:52:35.838Z"
+    },
+    {
+      "user_id": "user-p6vw60fo7",
+      "title": "Dsa study plan",
+      "description": "Captured offline using Natural Language Processing. Raw input: \"dsa study plan\"",
+      "category": "Education",
+      "priority": "medium",
+      "status": "pending",
+      "due_date": "2026-07-01",
+      "id": "task-5xy5a2r46",
+      "created_at": "2026-06-26T02:52:50.506Z"
+    },
+    {
+      "user_id": "user-p6vw60fo7",
+      "title": "dsa structure",
+      "description": "treees graphs",
+      "category": "Education",
+      "priority": "high",
+      "status": "pending",
+      "due_date": "2026-07-05",
+      "id": "task-7houa13te",
+      "created_at": "2026-06-26T02:53:31.517Z"
     }
   ],
   "notes": [
@@ -152,6 +185,16 @@
         "Implement Dijkstra from scratch"
       ],
       "created_at": "2026-06-22T12:37:16.241Z"
+    },
+    {
+      "user_id": "user-p6vw60fo7",
+      "title": "Notes:AWS is a services which provides cloud platform",
+      "content": "Captured offline using Natural Language Processing. Raw input: \"notes:AWS is a services which provides cloud platform\"",
+      "category": "Work",
+      "ai_summary": "Automatically captured via voice/text parser.",
+      "action_items": [],
+      "id": "note-0dnthljws",
+      "created_at": "2026-06-26T02:56:53.765Z"
     }
   ],
   "reminders": [
@@ -178,6 +221,14 @@
       "status": "dismissed",
       "id": "reminder-bm1q3fp8c",
       "created_at": "2026-06-25T16:57:49.079Z"
+    },
+    {
+      "user_id": "user-p6vw60fo7",
+      "title": "Call sandya ta 6pm",
+      "remind_at": "2026-06-26T03:52:06.968Z",
+      "status": "active",
+      "id": "reminder-989cx0fxg",
+      "created_at": "2026-06-26T02:52:06.971Z"
     }
   ],
   "summaries": [
