@@ -191,12 +191,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
   }, []);
 
+  // Confirmation Modal State
+  const [confirmModal, setConfirmModal] = useState<{
+    show: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    show: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
+
   const handleLogout = async () => {
-    if (confirm('Are you sure you want to sign out?')) {
-      await supabase.auth.signOut();
-      router.push('/login');
-      router.refresh();
-    }
+    setConfirmModal({
+      show: true,
+      title: 'Sign Out',
+      message: 'Are you sure you want to sign out of your account?',
+      onConfirm: async () => {
+        await supabase.auth.signOut();
+        router.push('/login');
+        router.refresh();
+      }
+    });
   };
 
   // Global Toast Notification State
@@ -214,6 +232,44 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       setToast(prev => ({ ...prev, show: false }));
     }, 5500);
   };
+
+  // Listen for global toasts and confirmations from other components
+  useEffect(() => {
+    const handleShowToast = (e: Event) => {
+      const customEvent = e as CustomEvent<{ title: string; message: string; type: 'success' | 'info' | 'error' }>;
+      if (customEvent.detail) {
+        const { title, message, type } = customEvent.detail;
+        triggerToast(title, message, type);
+      }
+    };
+
+    const handleShowConfirm = (e: Event) => {
+      const customEvent = e as CustomEvent<{
+        title: string;
+        message: string;
+        onConfirm: () => void;
+      }>;
+      if (customEvent.detail) {
+        const { title, message, onConfirm } = customEvent.detail;
+        setConfirmModal({
+          show: true,
+          title,
+          message,
+          onConfirm: () => {
+            onConfirm();
+            setConfirmModal(prev => ({ ...prev, show: false }));
+          }
+        });
+      }
+    };
+
+    window.addEventListener('show-toast', handleShowToast);
+    window.addEventListener('show-confirm', handleShowConfirm);
+    return () => {
+      window.removeEventListener('show-toast', handleShowToast);
+      window.removeEventListener('show-confirm', handleShowConfirm);
+    };
+  }, []);
 
   // Sync theme
   useEffect(() => {
@@ -392,6 +448,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div>
             <h4 className="font-semibold text-sm">{toast.title}</h4>
             <p className="text-xs text-[#6D5DFC] dark:text-[#A78BFA] mt-0.5">{toast.message}</p>
+          </div>
+        </div>
+      )}
+
+      {/* GLOBAL CONFIRMATION MODAL */}
+      {confirmModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl animate-in zoom-in-95 duration-200 text-left">
+            <h3 className="text-base font-bold text-slate-850 dark:text-white mb-2">{confirmModal.title}</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">{confirmModal.message}</p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))}
+                className="px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmModal.onConfirm}
+                className="px-4 py-2 text-xs font-semibold bg-rose-500 hover:bg-rose-600 text-white rounded-xl shadow-lg shadow-rose-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              >
+                Confirm
+              </button>
+            </div>
           </div>
         </div>
       )}

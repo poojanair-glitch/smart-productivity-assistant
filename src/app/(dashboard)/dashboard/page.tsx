@@ -14,6 +14,7 @@ import { motion } from 'framer-motion';
 
 // Types
 import { Task, Note, Reminder, AISummary } from '@/lib/db';
+import { showToast } from '@/utils/toast';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -103,7 +104,7 @@ export default function Dashboard() {
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.message || 'Failed to parse capture text');
+      showToast('Capture Failed', err.message || 'Failed to parse capture text', 'error');
     } finally {
       setIsProcessingInput(false);
     }
@@ -127,7 +128,7 @@ export default function Dashboard() {
       
       if (data.success) {
         setUploadStatus('');
-        alert(`Successfully analyzed "${file.name}"! Created 1 Note and auto-generated ${data.tasks?.length || 0} Tasks.`);
+        showToast('Capture Successful', `Successfully analyzed "${file.name}"! Created 1 Note and auto-generated ${data.tasks?.length || 0} Tasks.`, 'success');
         fetchDashboardData();
       } else {
         throw new Error(data.error);
@@ -135,7 +136,7 @@ export default function Dashboard() {
     } catch (err: any) {
       console.error(err);
       setUploadStatus('');
-      alert(err.message || 'Error processing file upload');
+      showToast('Upload Failed', err.message || 'Error processing file upload', 'error');
     }
   };
 

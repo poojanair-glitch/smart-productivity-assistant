@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { summarizeDocument } from '@/lib/gemini';
 import { db } from '@/lib/db';
-import { PDFParse } from 'pdf-parse';
 
 export async function POST(request: Request) {
   try {
@@ -27,6 +26,7 @@ export async function POST(request: Request) {
       textContent = buffer.toString('utf-8');
     } else if (fileType === 'pdf') {
       try {
+        const { PDFParse } = await import('pdf-parse');
         const parser = new PDFParse({ data: buffer });
         const textResult = await parser.getText();
         textContent = textResult.text || '';
@@ -35,9 +35,16 @@ export async function POST(request: Request) {
         textContent = buffer.toString('utf-8').replace(/[^\x20-\x7E\n\r\t]/g, '');
       }
     } else if (fileType === 'docx') {
-      textContent = `[DOCX FILE: ${fileName}]\n` + buffer.toString('utf-8').replace(/[^\x20-\x7E\n\r\t]/g, '');
-      if (textContent.length > 5000) {
-        textContent = textContent.substring(0, 5000);
+      try {
+        const mammoth = await import('mammoth');
+        const result = await mammoth.extractRawText({ buffer: buffer });
+        textContent = result.value || '';
+      } catch (err: any) {
+        console.error('DOCX parsing failed, using buffer string conversion fallback:', err);
+        textContent = `[DOCX FILE: ${fileName}]\n` + buffer.toString('utf-8').replace(/[^\x20-\x7E\n\r\t]/g, '');
+      }
+      if (textContent.length > 8000) {
+        textContent = textContent.substring(0, 8000);
       }
     } else {
       return NextResponse.json({ error: 'Unsupported file type. Please upload PDF, DOCX, or TXT' }, { status: 400 });

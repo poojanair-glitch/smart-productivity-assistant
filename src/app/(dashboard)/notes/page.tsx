@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Types
 import { Note } from '@/lib/db';
+import { showToast, showConfirm } from '@/utils/toast';
 
 export default function NotesPage() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -93,16 +94,23 @@ export default function NotesPage() {
   // Delete note
   const deleteNote = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Avoid opening card
-    if (!confirm('Are you sure you want to delete this note?')) return;
-    try {
-      const res = await fetch(`/api/notes?id=${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        if (selectedNote?.id === id) setSelectedNote(null);
-        fetchNotes();
+    showConfirm(
+      'Delete Note',
+      'Are you sure you want to delete this note? This action cannot be undone.',
+      async () => {
+        try {
+          const res = await fetch(`/api/notes?id=${id}`, { method: 'DELETE' });
+          if (res.ok) {
+            if (selectedNote?.id === id) setSelectedNote(null);
+            showToast('Note Deleted', 'The note was successfully removed.', 'success');
+            fetchNotes();
+          }
+        } catch (err) {
+          console.error(err);
+          showToast('Error', 'Failed to delete note.', 'error');
+        }
       }
-    } catch (err) {
-      console.error(err);
-    }
+    );
   };
 
   // Trigger file-based extraction
@@ -122,14 +130,14 @@ export default function NotesPage() {
       const data = await res.json();
       
       if (data.success) {
-        alert(`Successfully analyzed "${file.name}"! Note saved with AI Summary.`);
+        showToast('Analysis Complete', `Successfully analyzed "${file.name}"! Note saved with AI Summary.`, 'success');
         fetchNotes();
       } else {
         throw new Error(data.error);
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.message || 'Error processing file upload');
+      showToast('Extraction Failed', err.message || 'Error processing file upload', 'error');
     } finally {
       setUploading(false);
     }

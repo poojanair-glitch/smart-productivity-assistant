@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import { showToast } from '@/utils/toast';
 import { 
   User, Shield, Key, Database, Cpu, Sparkles, CheckCircle2, 
   XCircle, Terminal, HelpCircle, Save, Info 
@@ -72,7 +73,7 @@ export default function SettingsPage() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        alert('You must be logged in to update your profile.');
+        showToast('Authentication Error', 'You must be logged in to update your profile.', 'error');
         return;
       }
 
@@ -86,13 +87,13 @@ export default function SettingsPage() {
         });
 
       if (error) {
-        alert('Error updating profile: ' + error.message);
+        showToast('Update Failed', 'Error updating profile: ' + error.message, 'error');
       } else {
-        alert('Profile configurations updated successfully!');
+        showToast('Profile Updated', 'Profile configurations updated successfully!', 'success');
         router.refresh();
       }
     } catch (err: any) {
-      alert('Error: ' + err.message);
+      showToast('Error', 'Error: ' + err.message, 'error');
     } finally {
       setIsSavingProfile(false);
     }

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Types
 import { Task } from '@/lib/db';
+import { showToast, showConfirm } from '@/utils/toast';
 
 export default function TodosPage() {
   const [todos, setTodos] = useState<Task[]>([]);
@@ -90,18 +91,24 @@ export default function TodosPage() {
   const clearCompleted = async () => {
     const completedItems = todos.filter(t => t.status === 'completed');
     if (completedItems.length === 0) return;
-    if (!confirm(`Are you sure you want to clear ${completedItems.length} completed item(s)?`)) return;
-
-    try {
-      await Promise.all(
-        completedItems.map(item => 
-          fetch(`/api/tasks?id=${item.id}`, { method: 'DELETE' })
-        )
-      );
-      fetchTodos();
-    } catch (e) {
-      console.error(e);
-    }
+    showConfirm(
+      'Clear Completed Items',
+      `Are you sure you want to clear all ${completedItems.length} completed item(s)?`,
+      async () => {
+        try {
+          await Promise.all(
+            completedItems.map(item => 
+              fetch(`/api/tasks?id=${item.id}`, { method: 'DELETE' })
+            )
+          );
+          showToast('Completed Items Cleared', `Successfully removed ${completedItems.length} item(s).`, 'success');
+          fetchTodos();
+        } catch (e) {
+          console.error(e);
+          showToast('Error', 'Failed to clear completed items.', 'error');
+        }
+      }
+    );
   };
 
   const pendingTodos = todos.filter(t => t.status !== 'completed');

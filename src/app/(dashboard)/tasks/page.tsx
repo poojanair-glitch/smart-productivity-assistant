@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Types
 import { Task } from '@/lib/db';
+import { showToast, showConfirm } from '@/utils/toast';
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -109,15 +110,24 @@ export default function TasksPage() {
 
   // Delete task
   const deleteTask = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this task?')) return;
-    try {
-      const res = await fetch(`/api/tasks?id=${id}`, {
-        method: 'DELETE'
-      });
-      if (res.ok) fetchTasks();
-    } catch (e) {
-      console.error(e);
-    }
+    showConfirm(
+      'Delete Task',
+      'Are you sure you want to delete this task? This action cannot be undone.',
+      async () => {
+        try {
+          const res = await fetch(`/api/tasks?id=${id}`, {
+            method: 'DELETE'
+          });
+          if (res.ok) {
+            showToast('Task Deleted', 'The task has been successfully removed.', 'success');
+            fetchTasks();
+          }
+        } catch (e) {
+          console.error(e);
+          showToast('Error', 'Failed to delete task.', 'error');
+        }
+      }
+    );
   };
 
   // Set up form for Editing
