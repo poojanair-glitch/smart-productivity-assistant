@@ -2,7 +2,31 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Task, Note, Reminder } from './db';
 
 // Enforce environment validation
-const apiKey = process.env.GEMINI_API_KEY || '';
+const getApiKey = (): string => {
+  let key = '';
+  if (typeof window === 'undefined') {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const envLocalPath = path.join(process.cwd(), '.env.local');
+      if (fs.existsSync(envLocalPath)) {
+        const content = fs.readFileSync(envLocalPath, 'utf8');
+        const match = content.match(/^GEMINI_API_KEY\s*=\s*(.+)$/m);
+        if (match && match[1]) {
+          const val = match[1].trim().replace(/^["']|["']$/g, '');
+          if (val && !val.toLowerCase().includes('placeholder') && val !== 'YOUR_GEMINI_API_KEY') {
+            key = val;
+          }
+        }
+      }
+    } catch (e) {
+      // Ignore error
+    }
+  }
+  return key || process.env.GEMINI_API_KEY || '';
+};
+
+const apiKey = getApiKey();
 export const isGeminiConfigured = !!apiKey && apiKey !== 'YOUR_GEMINI_API_KEY' && !apiKey.toLowerCase().includes('placeholder');
 
 const genAI = isGeminiConfigured ? new GoogleGenerativeAI(apiKey) : null;
@@ -109,9 +133,13 @@ Output JSON only in this format:
     });
     const result = await model.generateContent(prompt);
     const parsed = JSON.parse(result.response.text().trim());
+    let score = parsed.productivity_score;
+    if (total === 0 || completed === 0) {
+      score = 0;
+    }
     return {
       summary: parsed.summary,
-      score: parsed.productivity_score
+      score: score
     };
   } catch (error) {
     console.error('Gemini report generation failed, falling back to local analysis:', error);
@@ -217,9 +245,9 @@ Always format your response with clean Markdown. Keep it direct, structured, and
     
     const result = await chat.sendMessage(userMsg);
     return result.response.text();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Gemini chat failed, falling back to offline helper response:', error);
-    return askAIChatFallback(userMsg, history, context);
+    return askAIChatFallback(userMsg, history, context, error);
   }
 }
 
@@ -344,7 +372,7 @@ function generateWeeklyAIReportFallback(
   const total = tasks.length;
   
   // Calculate a mock performance score
-  const score = total > 0 ? Math.round((completed / total) * 100) : 75;
+  const score = (total > 0 && completed > 0) ? Math.round((completed / total) * 100) : 0;
 
   // Determine top categories
   const categories: Record<string, number> = {};
@@ -429,7 +457,8 @@ function summarizeDocumentFallback(
 function askAIChatFallback(
   userMsg: string,
   history: { role: 'user' | 'model'; parts: string }[],
-  context: { tasks: Task[]; notes: Note[]; reminders: Reminder[] }
+  context: { tasks: Task[]; notes: Note[]; reminders: Reminder[] },
+  error?: any
 ): string {
   const lower = userMsg.toLowerCase();
 
@@ -476,9 +505,19 @@ I have access to your workspace context and can summarize, organize, and answer 
 - *How did my productivity go?*`;
   }
 
+  if (error) {
+    return `I've received your query: "${userMsg}". 
+
+Currently, I'm running in offline fallback mode because the Gemini API call failed. 
+
+**Error details:** ${error.message || error}
+
+Please check your \`GEMINI_API_KEY\` configuration, quota limits, or network connection. In the meantime, I can manage your tasks, check your reminders, and locate notes offline.`;
+  }
+
   return `I've received your query: "${userMsg}". 
 
-Currently, I'm running in offline fallback mode because no \`GEMINI_API_KEY\` was detected. I can manage your tasks, check your reminders, and locate notes. 
+Currently, I'm running in offline fallback mode because no \`GEMINI_API_KEY\` was detected. I can manage your tasks, check your reminders, and locate notes offline. 
 
 Let me know how you'd like to organize your day!`;
 }

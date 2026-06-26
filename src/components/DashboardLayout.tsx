@@ -7,7 +7,8 @@ import {
   LayoutDashboard, CheckSquare, FileText, Bell, Calendar, 
   BarChart3, Settings, Search, Mic, MicOff, Sun, Moon, 
   Send, Sparkles, Cpu, User, Menu, X, Plus, Clock, MessageSquare,
-  AlertCircle, CheckCircle2, ChevronRight, LogOut, Home, Tag, ChevronDown
+  AlertCircle, CheckCircle2, ChevronRight, LogOut, Home, Tag, ChevronDown,
+  Edit2
 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 
@@ -16,82 +17,6 @@ interface UserProfile {
   full_name: string;
   email: string;
   avatar_url: string;
-}
-
-// Custom Cursor Trail Component
-function CustomCursor() {
-  const [position, setPosition] = useState({ x: -100, y: -100 });
-  const [hovered, setHovered] = useState(false);
-  const [hidden, setHidden] = useState(true);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-      if (hidden) setHidden(false);
-    };
-
-    const handleMouseLeave = () => {
-      setHidden(true);
-    };
-
-    const handleMouseEnter = () => {
-      setHidden(false);
-    };
-
-    const handleHoverStart = () => setHovered(true);
-    const handleHoverEnd = () => setHovered(false);
-
-    window.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeave);
-    document.addEventListener('mouseenter', handleMouseEnter);
-
-    const updateHoverListeners = () => {
-      const clickables = document.querySelectorAll('a, button, input, textarea, [role="button"], select, .clickable');
-      clickables.forEach(el => {
-        el.addEventListener('mouseenter', handleHoverStart);
-        el.addEventListener('mouseleave', handleHoverEnd);
-      });
-    };
-
-    updateHoverListeners();
-    const observer = new MutationObserver(updateHoverListeners);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseleave', handleMouseLeave);
-      document.removeEventListener('mouseenter', handleMouseEnter);
-      observer.disconnect();
-    };
-  }, [hidden]);
-
-  if (hidden) return null;
-
-  return (
-    <>
-      <div 
-        className="cursor-dot hidden md:block"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          width: hovered ? '10px' : '6px',
-          height: hovered ? '10px' : '6px',
-          backgroundColor: hovered ? '#8B5CF6' : '#6D5DFC'
-        }}
-      />
-      <div 
-        className="cursor-ring hidden md:block"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          width: hovered ? '48px' : '32px',
-          height: hovered ? '48px' : '32px',
-          borderColor: hovered ? '#8B5CF6' : 'rgba(109, 93, 252, 0.4)',
-          backgroundColor: hovered ? 'rgba(139, 92, 246, 0.05)' : 'rgba(109, 93, 252, 0.03)',
-        }}
-      />
-    </>
-  );
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -123,13 +48,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isRecording, setIsRecording] = useState(false);
   const [speechStatus, setSpeechStatus] = useState('');
 
-  // Floating Chatbot States
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'model'; parts: string }>>([
-    { role: 'model', parts: 'Hi! I am your Smart AI Assistant. I can check your tasks, retrieve notes, create reminders, or answer productivity questions. Ask me anything!' }
-  ]);
-  const [chatInput, setChatInput] = useState('');
-  const [isChatLoading, setIsChatLoading] = useState(false);
+
 
   const supabase = createClient();
 
@@ -139,6 +58,49 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     email: 'user@example.com',
     avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop'
   });
+
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState('');
+
+  const handleSaveName = async () => {
+    const trimmed = tempName.trim();
+    if (!trimmed || trimmed === userProfile.full_name) {
+      setIsEditingName(false);
+      return;
+    }
+
+    // Optimistically update the UI profile
+    setUserProfile((prev) => ({ ...prev, full_name: trimmed }));
+    setIsEditingName(false);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        triggerToast('Error', 'You must be logged in to update your profile.', 'error');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          full_name: trimmed,
+          avatar_url: userProfile.avatar_url,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error('Failed to save profile name:', error.message);
+        triggerToast('Error', 'Failed to update username: ' + error.message, 'error');
+      } else {
+        triggerToast('Success', 'Username updated successfully!', 'success');
+        router.refresh();
+      }
+    } catch (err: any) {
+      console.error('Failed to save profile name:', err);
+      triggerToast('Error', 'An unexpected error occurred.', 'error');
+    }
+  };
 
   // Fetch real notifications/reminders
   const fetchNotifications = async () => {
@@ -403,35 +365,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   };
 
-  // AI Chat Bot request handler
-  const sendChatMessage = async () => {
-    if (!chatInput.trim() || isChatLoading) return;
-    const userMsg = chatInput;
-    setChatInput('');
-    setChatMessages(prev => [...prev, { role: 'user', parts: userMsg }]);
-    setIsChatLoading(true);
 
-    try {
-      const response = await fetch('/api/gemini/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userMsg,
-          history: chatMessages
-        })
-      });
-      const data = await response.json();
-      if (data.reply) {
-        setChatMessages(prev => [...prev, { role: 'model', parts: data.reply }]);
-      } else {
-        throw new Error(data.error);
-      }
-    } catch (e: any) {
-      setChatMessages(prev => [...prev, { role: 'model', parts: `Failed to connect to Gemini: ${e.message || 'Unknown network error.'}` }]);
-    } finally {
-      setIsChatLoading(false);
-    }
-  };
 
   // Nav configuration
   const navItems = [
@@ -447,10 +381,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#F8FAFC] dark:bg-[#0B0F19] text-[#111827] dark:text-[#F8FAFC] bg-grid-pattern relative overflow-x-hidden font-sans custom-cursor-active">
-      
-      {/* Custom Cursor follower */}
-      <CustomCursor />
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#F5F3FF] dark:bg-[#0B0F19] text-[#111827] dark:text-[#F8FAFC] bg-grid-pattern relative overflow-x-hidden font-sans">
 
       {/* GLOBAL TOAST */}
       {toast.show && (
@@ -568,7 +499,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
               <button 
                 onClick={() => {
-                  setIsChatOpen(true);
+                  window.dispatchEvent(new Event('open-gemini-chat'));
                   setIsMobileSidebarOpen(false);
                 }}
                 className="w-full py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-semibold shadow-sm transition-all"
@@ -580,7 +511,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* User Profile Footer */}
           <div className={`flex ${(isSidebarOpen || isMobileSidebarOpen) ? 'items-center justify-between' : 'flex-col items-center gap-2'} pt-4 border-t border-[#1E2235]/65 overflow-hidden`}>
-            <div className={`flex items-center ${(isSidebarOpen || isMobileSidebarOpen) ? 'gap-3' : 'gap-0'} min-w-0`}>
+            <div className={`flex items-center ${(isSidebarOpen || isMobileSidebarOpen) ? 'gap-3' : 'gap-0'} min-w-0 w-full`}>
               <img 
                 src={userProfile.avatar_url} 
                 alt={userProfile.full_name} 
@@ -588,7 +519,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               />
               {(isSidebarOpen || isMobileSidebarOpen) && (
                 <div className="flex-1 min-w-0 text-left">
-                  <h4 className="text-xs font-bold text-white truncate">{userProfile.full_name}</h4>
+                  {isEditingName ? (
+                    <input
+                      type="text"
+                      value={tempName}
+                      onChange={(e) => setTempName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveName();
+                        if (e.key === 'Escape') setIsEditingName(false);
+                      }}
+                      onBlur={handleSaveName}
+                      className="text-xs font-bold text-white bg-white/10 px-1.5 py-0.5 rounded border border-white/20 focus:outline-none focus:ring-1 focus:ring-[#6D5DFC] w-full"
+                      autoFocus
+                    />
+                  ) : (
+                    <div className="flex items-center gap-1.5 group max-w-full">
+                      <h4 
+                        className="text-xs font-bold text-white truncate cursor-pointer hover:text-white/80"
+                        onClick={() => {
+                          setTempName(userProfile.full_name);
+                          setIsEditingName(true);
+                        }}
+                      >
+                        {userProfile.full_name}
+                      </h4>
+                      <button
+                        onClick={() => {
+                          setTempName(userProfile.full_name);
+                          setIsEditingName(true);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 text-white/50 hover:text-white transition-opacity p-0.5 shrink-0"
+                        title="Edit Username"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
                   <p className="text-[10px] text-white/50 truncate">{userProfile.email}</p>
                 </div>
               )}
@@ -614,7 +580,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Greeting */}
           <div className="hidden sm:block text-left">
             <h2 className="text-xl font-bold flex items-center gap-1.5 text-[#111827] dark:text-slate-100">
-              Welcome to your focus zone,{userProfile.full_name.split(' ')[0]}!
+              Welcome to your focus zone, {userProfile.full_name.split(' ')[0]}! 
             </h2>
             <p className="text-xs text-[#6B7280] dark:text-slate-400 mt-1">What would you like to accomplish today?</p>
           </div>
@@ -807,94 +773,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
 
-      {/* FLOATING CHATBOT ASSISTANT (Powered by Gemini) */}
-      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end">
-        {/* Chat Window */}
-        {isChatOpen && (
-          <div className="w-[calc(100vw-2.5rem)] sm:w-96 h-[500px] mb-4 rounded-3xl glass-panel shadow-2xl border border-[#6D5DFC]/20 flex flex-col justify-between overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
-            {/* Header */}
-            <div className="p-4 bg-gradient-to-r from-[#0F172A] to-[#1E293B] text-white flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="p-1.5 rounded-xl bg-[#6D5DFC] flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm">Gemini AI Assistant</h3>
-                  <span className="text-[10px] text-emerald-400 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Online Context
-                  </span>
-                </div>
-              </div>
-              <button 
-                onClick={() => setIsChatOpen(false)} 
-                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
 
-            {/* Message Pane */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#F8FAFC]/50 dark:bg-[#0B0F19]/50">
-              {chatMessages.map((msg, idx) => (
-                <div 
-                  key={idx} 
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`
-                    max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed
-                    ${msg.role === 'user' 
-                      ? 'bg-gradient-to-br from-[#6D5DFC] to-[#8B5CF6] text-white rounded-tr-none' 
-                      : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-tl-none text-slate-800 dark:text-slate-100 shadow-sm'
-                    }
-                  `}>
-                    <p className="whitespace-pre-line">{msg.parts}</p>
-                  </div>
-                </div>
-              ))}
-              {isChatLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl rounded-tl-none px-4 py-3 text-xs text-slate-400 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#6D5DFC] animate-bounce" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#6D5DFC] animate-bounce [animation-delay:0.2s]" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#6D5DFC] animate-bounce [animation-delay:0.4s]" />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Input Bar */}
-            <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center gap-2">
-              <input 
-                type="text" 
-                placeholder="Ask about your high-priority tasks..." 
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
-                className="flex-1 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#6D5DFC]"
-              />
-              <button 
-                onClick={sendChatMessage}
-                disabled={isChatLoading || !chatInput.trim()}
-                className="p-2 rounded-xl bg-gradient-to-r from-[#6D5DFC] to-[#8B5CF6] text-white hover:opacity-90 transition-opacity disabled:opacity-50 shrink-0"
-              >
-                <Send className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Bubble Button */}
-        <button
-          onClick={() => setIsChatOpen(!isChatOpen)}
-          className="p-4 rounded-full bg-gradient-to-br from-[#6D5DFC] to-[#8B5CF6] text-white shadow-2xl hover:scale-105 active:scale-95 transition-transform flex items-center justify-center relative group"
-        >
-          <Sparkles className="w-6 h-6 animate-pulse" />
-          <span className="absolute right-full mr-3 py-1.5 px-3 rounded-xl bg-slate-900 text-white text-[10px] font-medium tracking-wide whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl">
-            Chat with Gemini AI
-          </span>
-        </button>
-      </div>
 
     </div>
   );

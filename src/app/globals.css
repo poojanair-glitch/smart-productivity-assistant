@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --color-primary: #6D5DFC;
@@ -16,7 +17,7 @@
 }
 
 :root {
-  --background: #F8FAFC;
+  --background: #F5F3FF;
   --foreground: #111827;
   
   --card: #FFFFFF;
@@ -150,3 +151,54 @@ body {
               border-color 0.3s, 
               background-color 0.3s;
 }
+
+/* Shaky Hover Interaction Effect */
+@keyframes shaky {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(-0.8px, 0.8px) rotate(-0.3deg); }
+  40% { transform: translate(0.8px, -0.8px) rotate(0.3deg); }
+  60% { transform: translate(-0.8px, -0.8px) rotate(-0.3deg); }
+  80% { transform: translate(0.8px, 0.8px) rotate(0.3deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+a:hover, 
+button:hover, 
+[role="button"]:hover,
+.shaky-hover:hover {
+  animation: shaky 0.3s ease-in-out infinite;
+}
+
+/* Mouse cursor wave effects */
+@keyframes ripple-wave {
+  0% {
+    transform: translate(-50%, -50%) scale(0.25);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.0);
+    opacity: 0;
+  }
+}
+
+.ripple-wave-element {
+  position: fixed;
+  pointer-events: none;
+  border: 2px solid rgba(139, 92, 246, 0.85);
+  background: rgba(139, 92, 246, 0.18);
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  z-index: 9999;
+  animation: ripple-wave 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes floatRobot {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float-robot {
+  animation: floatRobot 3.5s ease-in-out infinite;
+}
+

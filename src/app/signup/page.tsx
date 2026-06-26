@@ -121,13 +121,7 @@ function SignupFormContent() {
                 ))}
               </div>
             </div>
-            <input
-              type="text"
-              placeholder="Or paste custom image URL..."
-              value={avatarUrl}
-              onChange={(e) => setAvatarUrl(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-[10px] focus:ring-1 focus:ring-[#6D5DFC] focus:outline-none"
-            />
+
           </div>
 
           <div className="space-y-1.5">

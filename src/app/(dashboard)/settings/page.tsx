@@ -138,8 +138,13 @@ export default function SettingsPage() {
 
             <form onSubmit={handleProfileSave} className="space-y-4 text-xs">
               <div className="flex items-center gap-4">
-                <img src={avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop'} alt="Avatar" className="w-12 h-12 rounded-full object-cover border border-slate-700" />
-                <div className="space-y-1 flex-1">
+                <img 
+                  src={avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop'} 
+                  alt="Avatar" 
+                  className="w-16 h-16 rounded-full object-cover border-2 border-[#6D5DFC] shadow-md shadow-[#6D5DFC]/10" 
+                />
+                {/* Hide the input box as requested by user */}
+                <div className="space-y-1 flex-1 hidden">
                   <label className="font-semibold text-slate-400">Avatar Image URL</label>
                   <input 
                     type="text" 
@@ -229,24 +234,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* Instruction Panel */}
-            <div className="p-4 rounded-xl bg-[#6D5DFC]/5 border border-[#6D5DFC]/15 space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-white">
-                <Terminal className="w-4 h-4 text-[#A78BFA]" />
-                How to activate cloud integrations
-              </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                Add a <code className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-200">.env.local</code> file in the project root directory and define the following variables:
-              </p>
-              <pre className="p-3 rounded-lg bg-slate-900 text-slate-200 text-[10px] font-mono leading-relaxed overflow-x-auto border border-slate-800">
-{`# Google Gemini API key
-GEMINI_API_KEY=AIzaSy...
 
-# Supabase Configurations
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...`}
-              </pre>
-            </div>
 
           </div>
 

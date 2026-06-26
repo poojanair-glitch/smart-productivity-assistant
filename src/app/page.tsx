@@ -245,22 +245,7 @@ export default function LandingPage() {
 
       </header>
 
-      {/* 3. TRUSTED BY */}
-      <section className="bg-slate-50 dark:bg-slate-900/30 py-8 border-y border-slate-200/50 dark:border-slate-800/80">
-        <div className="max-w-7xl mx-auto px-6 text-center space-y-4">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-            Trusted by students, professionals, and teams worldwide
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-50 dark:opacity-40 grayscale hover:grayscale-0 transition-all">
-            <span className="font-bold text-sm tracking-wider">GOOGLE</span>
-            <span className="font-bold text-sm tracking-wider">AWS</span>
-            <span className="font-bold text-sm tracking-wider">MICROSOFT</span>
-            <span className="font-bold text-sm tracking-wider">NOTION</span>
-            <span className="font-bold text-sm tracking-wider">GITHUB</span>
-            <span className="font-bold text-sm tracking-wider">VERCEL</span>
-          </div>
-        </div>
-      </section>
+
 
       {/* 4. HOW IT WORKS */}
       <section id="how-it-works" className="max-w-7xl mx-auto px-6 py-20 text-center space-y-12">
