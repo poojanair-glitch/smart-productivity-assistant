@@ -4,7 +4,7 @@ An AI-powered productivity web application that helps users efficiently manage t
 
 ## 🌐 Live Demo
 
-**Vercel Deployment:** https://smart-productivity-assistant-tau.vercel.app/
+**Vercel Deployment:** [https://smart-productivity-assistant-pooja.vercel.app](https://smart-productivity-assistant-pooja.vercel.app)
 
 ---
 
@@ -35,7 +35,7 @@ The application leverages **Google Gemini AI** to enhance productivity by genera
 
 ### Frontend
 
-* Next.js 15
+* Next.js 
 * React
 * TypeScript
 * Tailwind CSS
@@ -127,7 +127,7 @@ The application is deployed using **Vercel**.
 
 Live URL:
 
-https://smart-productivity-assistant-tau.vercel.app/
+[https://smart-productivity-assistant-tau.vercel.app/](https://smart-productivity-assistant-pooja.vercel.app)
 
 ---
 
