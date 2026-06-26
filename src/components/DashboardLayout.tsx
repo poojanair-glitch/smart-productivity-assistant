@@ -7,9 +7,10 @@ import {
   LayoutDashboard, CheckSquare, FileText, Bell, Calendar, 
   BarChart3, Settings, Search, Mic, MicOff, Sun, Moon, 
   Send, Sparkles, Cpu, User, Menu, X, Plus, Clock, MessageSquare,
-  AlertCircle, CheckCircle2, ChevronRight, LogOut
+  AlertCircle, CheckCircle2, ChevronRight, LogOut, Home, Tag, ChevronDown
 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
+
 
 interface UserProfile {
   full_name: string;
@@ -17,12 +18,88 @@ interface UserProfile {
   avatar_url: string;
 }
 
+// Custom Cursor Trail Component
+function CustomCursor() {
+  const [position, setPosition] = useState({ x: -100, y: -100 });
+  const [hovered, setHovered] = useState(false);
+  const [hidden, setHidden] = useState(true);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setPosition({ x: e.clientX, y: e.clientY });
+      if (hidden) setHidden(false);
+    };
+
+    const handleMouseLeave = () => {
+      setHidden(true);
+    };
+
+    const handleMouseEnter = () => {
+      setHidden(false);
+    };
+
+    const handleHoverStart = () => setHovered(true);
+    const handleHoverEnd = () => setHovered(false);
+
+    window.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('mouseenter', handleMouseEnter);
+
+    const updateHoverListeners = () => {
+      const clickables = document.querySelectorAll('a, button, input, textarea, [role="button"], select, .clickable');
+      clickables.forEach(el => {
+        el.addEventListener('mouseenter', handleHoverStart);
+        el.addEventListener('mouseleave', handleHoverEnd);
+      });
+    };
+
+    updateHoverListeners();
+    const observer = new MutationObserver(updateHoverListeners);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('mouseenter', handleMouseEnter);
+      observer.disconnect();
+    };
+  }, [hidden]);
+
+  if (hidden) return null;
+
+  return (
+    <>
+      <div 
+        className="cursor-dot hidden md:block"
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          width: hovered ? '10px' : '6px',
+          height: hovered ? '10px' : '6px',
+          backgroundColor: hovered ? '#8B5CF6' : '#6D5DFC'
+        }}
+      />
+      <div 
+        className="cursor-ring hidden md:block"
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          width: hovered ? '48px' : '32px',
+          height: hovered ? '48px' : '32px',
+          borderColor: hovered ? '#8B5CF6' : 'rgba(109, 93, 252, 0.4)',
+          backgroundColor: hovered ? 'rgba(139, 92, 246, 0.05)' : 'rgba(109, 93, 252, 0.03)',
+        }}
+      />
+    </>
+  );
+}
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   
   // Theme & Navigation States
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -178,7 +255,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Sync theme
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedTheme = localStorage.getItem('theme') || 'light';
     setTheme(savedTheme as 'light' | 'dark');
     if (savedTheme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -358,19 +435,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Nav configuration
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Tasks', path: '/tasks', icon: ChevronRight }, // We'll structure these nicely
+    { name: 'Dashboard', path: '/dashboard', icon: Home },
+    { name: 'Tasks', path: '/tasks', icon: CheckSquare },
     { name: 'To-Do', path: '/todos', icon: CheckSquare },
     { name: 'Notes', path: '/notes', icon: FileText },
-    { name: 'Reminders', path: '/reminders', icon: Clock },
+    { name: 'Reminders', path: '/reminders', icon: Bell },
     { name: 'Calendar', path: '/calendar', icon: Calendar },
+    { name: 'Tags', path: '/tasks', icon: Tag },
     { name: 'Analytics', path: '/analytics', icon: BarChart3 },
     { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#F8FAFC] dark:bg-[#0B0F19] text-[#0F172A] dark:text-[#F8FAFC] bg-grid-pattern relative overflow-x-hidden font-sans">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#F8FAFC] dark:bg-[#0B0F19] text-[#111827] dark:text-[#F8FAFC] bg-grid-pattern relative overflow-x-hidden font-sans custom-cursor-active">
       
+      {/* Custom Cursor follower */}
+      <CustomCursor />
+
       {/* GLOBAL TOAST */}
       {toast.show && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-3 p-4 rounded-xl shadow-2xl glass-panel border border-[#6D5DFC]/20 animate-in fade-in slide-in-from-top-4 duration-300 max-w-sm">
@@ -385,10 +466,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* MOBILE HEADER BAR */}
-      <div className="md:hidden w-full bg-[#0F172A] text-white p-4 flex items-center justify-between z-30">
+      <div className="md:hidden w-full bg-[#14172B] text-white p-4 flex items-center justify-between z-30">
         <div className="flex items-center gap-2">
-          <Cpu className="w-6 h-6 text-[#A78BFA]" />
-          <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-purple-400 to-indigo-300 bg-clip-text text-transparent">Smart Productivity</span>
+          <CheckSquare className="w-6 h-6 text-[#6D5DFC]" />
+          <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-white to-[#A78BFA] bg-clip-text text-transparent">Smart Productivity</span>
         </div>
         <button 
           onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)} 
@@ -406,9 +487,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         />
       )}
 
-      {/* LEFT SIDEBAR (Dark Gradient Sidebar) */}
+      {/* LEFT SIDEBAR (Dark Premium Sidebar) */}
       <aside className={`
-        fixed inset-y-0 left-0 z-40 bg-gradient-to-b from-[#0F172A] to-[#090D1A] text-slate-300 flex flex-col justify-between border-r border-[#1E293B] transition-all duration-300 ease-in-out
+        fixed inset-y-0 left-0 z-40 bg-[#14172B] text-[#E2E8F0] flex flex-col justify-between border-r border-[#1E2235]/40 transition-all duration-300 ease-in-out
         w-64 ${isSidebarOpen ? 'md:w-64' : 'md:w-20'}
         p-6 ${isSidebarOpen ? 'md:p-6' : 'md:p-3'}
         ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
@@ -418,19 +499,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div>
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-[#6D5DFC] to-[#8B5CF6] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#6D5DFC]/20">
-                <Cpu className="w-5 h-5" />
+              <div className="p-2 rounded-xl bg-[#6D5DFC] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#6D5DFC]/20">
+                <CheckSquare className="w-5 h-5" />
               </div>
               {(isSidebarOpen || isMobileSidebarOpen) && (
-                <span className="font-bold text-lg tracking-tight text-white bg-gradient-to-r from-white to-[#A78BFA] bg-clip-text text-transparent">
-                  Smart Productivity
-                </span>
+                <div className="flex flex-col text-left">
+                  <span className="font-extrabold text-sm tracking-tight text-white leading-none">
+                    Smart Productivity
+                  </span>
+                  <span className="text-[10px] text-white/50 font-medium">
+                    Assistant
+                  </span>
+                </div>
               )}
             </div>
             {/* Collapse button on Desktop */}
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="hidden md:block p-1 rounded-lg hover:bg-[#1E293B] text-slate-400 hover:text-white"
+              className="hidden md:block p-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
             >
               {isSidebarOpen ? <X className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </button>
@@ -449,12 +535,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   className={`
                     flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
                     ${isActive 
-                      ? 'bg-gradient-to-r from-[#6D5DFC]/20 to-[#8B5CF6]/10 text-white font-medium border-l-2 border-[#6D5DFC]' 
-                      : 'hover:bg-slate-800/50 hover:text-slate-100'
+                      ? 'bg-[#6D5DFC] text-white font-semibold shadow-md shadow-[#6D5DFC]/20' 
+                      : 'hover:bg-white/5 text-white/80 hover:text-white'
                     }
                   `}
                 >
-                  <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#6D5DFC]' : 'text-slate-400 group-hover:text-slate-200'}`} />
+                  <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-[#6B7280] group-hover:text-white'}`} />
                   {(isSidebarOpen || isMobileSidebarOpen) && <span className="text-sm">{item.name}</span>}
                 </Link>
               );
@@ -466,49 +552,57 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="space-y-4">
           {/* AI Assistant Promo Widget */}
           {(isSidebarOpen || isMobileSidebarOpen) && (
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#6D5DFC]/10 to-[#8B5CF6]/5 border border-[#6D5DFC]/20 shadow-inner">
-              <div className="flex items-center gap-2 text-white mb-2">
-                <Sparkles className="w-4 h-4 text-[#A78BFA]" />
-                <span className="text-xs font-semibold uppercase tracking-wider">AI Assistant</span>
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#6D5DFC] to-[#8B5CF6] text-white shadow-lg relative overflow-hidden mb-2">
+              <div className="flex items-center justify-between mb-2">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/70">AI Assistant</span>
+                  <p className="text-[10px] text-white/90 leading-tight max-w-[110px]">
+                    Ask anything or capture quickly!
+                  </p>
+                </div>
+                <img 
+                  src="/ai_robot_avatar.png" 
+                  alt="AI Assistant" 
+                  className="w-12 h-12 object-contain shrink-0 filter drop-shadow-md"
+                />
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed mb-3">
-                Need high priority updates or weekly analysis? Chat directly with Gemini.
-              </p>
               <button 
                 onClick={() => {
                   setIsChatOpen(true);
                   setIsMobileSidebarOpen(false);
                 }}
-                className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-[#6D5DFC] to-[#8B5CF6] hover:from-[#5C4EEB] hover:to-[#7C4BEA] text-white text-xs font-medium shadow-md shadow-[#6D5DFC]/20 transition-all flex items-center justify-center gap-1.5"
+                className="w-full py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-semibold shadow-sm transition-all"
               >
-                <MessageSquare className="w-3.5 h-3.5" />
-                Ask Assistant
+                New Chat
               </button>
             </div>
           )}
 
           {/* User Profile Footer */}
-          <div className={`flex ${(isSidebarOpen || isMobileSidebarOpen) ? 'items-center justify-between' : 'flex-col items-center gap-2'} pt-4 border-t border-[#1E293B] overflow-hidden`}>
+          <div className={`flex ${(isSidebarOpen || isMobileSidebarOpen) ? 'items-center justify-between' : 'flex-col items-center gap-2'} pt-4 border-t border-[#1E2235]/65 overflow-hidden`}>
             <div className={`flex items-center ${(isSidebarOpen || isMobileSidebarOpen) ? 'gap-3' : 'gap-0'} min-w-0`}>
               <img 
                 src={userProfile.avatar_url} 
                 alt={userProfile.full_name} 
-                className="w-10 h-10 rounded-full border border-slate-700 object-cover shrink-0" 
+                className="w-10 h-10 rounded-full border-2 border-white/20 object-cover shrink-0" 
               />
               {(isSidebarOpen || isMobileSidebarOpen) && (
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-semibold text-white truncate">{userProfile.full_name}</h4>
-                  <p className="text-[11px] text-slate-500 truncate">{userProfile.email}</p>
+                <div className="flex-1 min-w-0 text-left">
+                  <h4 className="text-xs font-bold text-white truncate">{userProfile.full_name}</h4>
+                  <p className="text-[10px] text-white/50 truncate">{userProfile.email}</p>
                 </div>
               )}
             </div>
-            <button 
-              onClick={handleLogout}
-              className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-rose-500 transition-all shrink-0"
-              title="Log Out"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+            
+            <div className="relative">
+              <button 
+                onClick={handleLogout}
+                className="p-1 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-all shrink-0"
+                title="Log Out"
+              >
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </aside>
@@ -516,13 +610,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 relative">
         {/* TOP HEADER */}
-        <header className="sticky top-0 z-20 glass-panel border-b border-slate-200 dark:border-slate-800/80 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-4">
+        <header className="sticky top-0 z-20 glass-panel border-b border-[#E5E7EB] dark:border-slate-800/80 px-6 py-4 flex items-center justify-between gap-4">
           {/* Greeting */}
-          <div className="hidden sm:block">
-            <h2 className="text-lg font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-100">
-              Good Morning, {userProfile.full_name.split(' ')[0]} 👋
+          <div className="hidden sm:block text-left">
+            <h2 className="text-xl font-bold flex items-center gap-1.5 text-[#111827] dark:text-slate-100">
+              Hello 😊, {userProfile.full_name.split(' ')[0]}! 👋
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">What would you like to accomplish today?</p>
+            <p className="text-xs text-[#6B7280] dark:text-slate-400 mt-1">What would you like to accomplish today?</p>
           </div>
 
           {/* Global Search Bar */}
@@ -531,25 +625,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input 
                 type="text" 
-                placeholder="Global Search tasks, notes, reminders..." 
+                placeholder="Search anything..." 
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   if (e.target.value) setIsSearchOpen(true);
                 }}
-                className="w-full pl-10 pr-10 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6D5DFC] focus:border-transparent text-sm transition-all"
+                className="w-full pl-10 pr-14 py-2.5 rounded-2xl bg-[#FFFFFF] dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-850 focus:outline-none focus:ring-2 focus:ring-[#6D5DFC]/20 focus:border-[#6D5DFC] text-sm text-[#111827] dark:text-white transition-all shadow-sm placeholder:text-[#6B7280]/60"
               />
-              {searchQuery && (
-                <button 
-                  onClick={() => {
-                    setSearchQuery('');
-                    setIsSearchOpen(false);
-                  }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                {searchQuery ? (
+                  <button 
+                    onClick={() => {
+                      setSearchQuery('');
+                      setIsSearchOpen(false);
+                    }}
+                    className="text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <span className="hidden md:inline-block text-[9px] font-bold text-slate-400 px-1.5 py-0.5 rounded border border-slate-200 bg-slate-50">⌘K</span>
+                )}
+              </div>
             </div>
 
             {/* Global Search Results Overlay */}
@@ -634,14 +732,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Action Row */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {/* Voice Input Button */}
             <button 
               onClick={startVoiceInput}
-              className={`p-2 rounded-xl border transition-all ${
+              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
                 isRecording 
-                  ? 'bg-rose-500/10 border-rose-500/30 text-rose-500 animate-pulse' 
-                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-[#6D5DFC] hover:border-[#6D5DFC]/30'
+                  ? 'bg-rose-500 text-white animate-pulse' 
+                  : 'bg-[#6D5DFC] text-white shadow-md shadow-[#6D5DFC]/20 hover:scale-105 active:scale-95'
               }`}
               title="Voice Input (Capture Task/Note/Reminder)"
             >
@@ -651,7 +749,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Theme Toggle */}
             <button 
               onClick={toggleTheme}
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-[#6D5DFC]"
+              className="w-11 h-11 rounded-full flex items-center justify-center border border-[#E5E7EB] dark:border-slate-850 bg-white dark:bg-slate-900 text-[#6B7280] hover:text-[#6D5DFC] transition-all hover:scale-105 active:scale-95"
             >
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
@@ -660,11 +758,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="relative">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-[#6D5DFC] relative"
+                className="w-11 h-11 rounded-full flex items-center justify-center border border-[#E5E7EB] dark:border-slate-850 bg-white dark:bg-slate-900 text-[#6B7280] hover:text-[#6D5DFC] relative transition-all hover:scale-105 active:scale-95"
               >
                 <Bell className="w-5 h-5" />
                 {notificationCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500" />
+                  <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-rose-500" />
                 )}
               </button>
 
