@@ -1,4 +1,4 @@
-# 🚀 Smart Productivity Assistant
+#  Smart Productivity Assistant
 
 An AI-powered productivity web application that helps users efficiently manage their daily tasks, notes, reminders, and schedules through an intuitive dashboard with intelligent assistance powered by Google Gemini AI.
 
@@ -79,7 +79,7 @@ smart-productivity-assistant/
 
 ---
 
-# 🤖 AI Capabilities
+# AI Capabilities
 
 The application integrates Google Gemini AI to provide:
 
@@ -91,7 +91,7 @@ The application integrates Google Gemini AI to provide:
 
 ---
 
-# 📷 Application Modules
+#  Application Modules
 
 * Authentication
 * Dashboard
